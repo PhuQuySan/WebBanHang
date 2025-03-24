@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="layouts/main">
+<head>
+    <title>Danh sách đơn hàng</title>
+</head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<body>
+<main layout:fragment="content">
+    <h1>Danh sách đơn hàng</h1>
+    <div th:if="${message}" class="alert alert-success" role="alert">
+    <span th:text="${message}"></span>
+</div>
+    
+    
+    <ul>
+        <li th:each="order : ${orders}">
+            <a th:href="@{/orders/detail/{id}(id=${order.id})}" th:text="'Đơn hàng #' + ${order.id}"></a>
+            - Ngày: <span th:text="${order.orderDate}"></span>
+            - Tổng tiền: <span th:text="${order.totalAmount}"></span> VND
+        </li>
+    </ul>
+    </main>
+</body>
+</html>

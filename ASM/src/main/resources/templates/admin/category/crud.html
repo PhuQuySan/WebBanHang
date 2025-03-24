@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{admin/admin-layout}">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Quản lý Danh Mục</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- Fragment được chèn vào layout admin/home -->
+
+	<main layout:fragment="contentadmin">
+
+	<!-- Form CRUD -->
+	<div class="card mb-4">
+		<div class="card-header">
+			<h2 th:text="${category.id} == null ? 'Thêm mới Danh Mục' : 'Sửa Danh Mục'">Thêm mới/Sửa Danh Mục</h2>
+		</div>
+		<div class="card-body">
+			<div class="col-md-4">
+				<form th:action="@{/admin/categories/save}" th:object="${category}" method="post">
+					<!-- Hiển thị ID nếu đã có (chỉ đọc) -->
+					<div class="mb-3" th:if="${category.id != null}">
+						<label for="id" class="form-label">ID</label>
+						<input type="text" id="id" th:value="${category.id}" class="form-control" readonly/>
+					</div>
+					<div class="mb-3">
+						<label for="name" class="form-label">Tên Danh Mục</label>
+						<input type="text" id="name" th:field="*{name}" class="form-control" required/>
+					</div>
+					<div class="mb-3">
+						<a th:href="@{/admin/categories/new}" class="btn btn-primary">Thêm mới</a>
+						<button type="submit" class="btn btn-success">Lưu</button>
+						<a th:href="@{/admin/categories}" class="btn btn-secondary">Làm mới</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- Bảng danh sách các bản ghi -->
+	<div class="card">
+		<div class="card-header">
+			<h2>Danh sách Danh Mục</h2>
+		</div>
+		<div class="card-body">
+			<div class="table-responsive">
+				<table class="table table-bordered">
+					<thead>
+					<tr>
+						<th>ID</th>
+						<th>Tên Danh Mục</th>
+						<th>Hành động</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr th:each="cat : ${categories}">
+						<td th:text="${cat.id}"></td>
+						<td th:text="${cat.name}"></td>
+						<td>
+							<a th:href="@{/admin/categories/edit/{id}(id=${cat.id})}" class="btn btn-warning btn-sm">Sửa</a>
+							<a th:href="@{/admin/categories/delete/{id}(id=${cat.id})}"
+							   class="btn btn-danger btn-sm"
+							   onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+						</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Hiển thị thông báo thành công -->
+	<div th:if="${successMessage}" class="alert alert-success">
+	    <span th:text="${successMessage}">ádasd</span>
+	</div>
+
+	<!-- Hiển thị thông báo lỗi -->
+	<div th:if="${errorMessage}" class="alert alert-danger">
+	    <span th:text="${errorMessage}"></span>
+	</div>
+
+</main>
+</body>
+</html>

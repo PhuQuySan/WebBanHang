@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang Chủ</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <!-- Bootstrap 5 JS Bundle (có Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="container-fluid bg-light p-3">
+    <nav class="container navbar navbar-expand-sm navbar-light px-5 mx-auto">
+      <div class="container-fluid">
+        <!-- Logo: bên trái -->
+<a class="navbar-brand" href="/home/index" style="width: 150px; height: auto; display: inline-block; padding: 0px; margin: 0px;">
+  <img alt="Logo" th:src="@{/Logo/Logo-QTF.png}" class="img-fluid" style="width: 150px; height: auto; object-fit: contain;">
+</a>
+
+				<!-- Toggler cho mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar" 
+                aria-controls="mynavbar" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <!-- Nội dung collapse -->
+        <div class="collapse navbar-collapse" id="mynavbar">
+          <!-- Search bar: căn giữa -->
+        <!--    <form class="d-flex mx-auto">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-primary" type="submit">Search</button>
+          </form>-->
+	    <form class="d-flex mx-auto" method="get" action="/product/search">
+	      <input class="form-control me-2" type="search" name="name" placeholder="Nhập Tên Sản Phẩm" aria-label="Search" required>
+	      <button class="btn btn-primary" type="submit">Search</button>
+	    </form>          
+          
+          <!-- Các mục bên phải: Tài khoản, avatar và giỏ hàng -->
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+			<!-- Hiển thị link Quản lý nếu currentUser là admin -->
+			<li class="nav-item" th:if="${session.currentUser != null and (session.currentUser.role == 'ADMIN' or session.currentUser.role == 'admin' or session.currentUser.role == '1')}">
+			    <a class="nav-link" href="/admin">Quản lý</a>
+			</li>
+			
+            <!-- Hiển thị lời chào theo trạng thái đăng nhập -->
+            <li class="nav-item" th:if="${session.currentUser != null}">
+              <span class="nav-link">Xin chào, <span th:text="${session.currentUser.username}"></span></span>
+            </li>
+            <li class="nav-item" th:if="${session.currentUser == null}">
+              <span class="nav-link">Xin chào, khách vô danh</span>
+            </li>
+            
+            <!-- Dropdown cho người chưa đăng nhập -->
+            <li class="nav-item dropdown" th:if="${session.currentUser == null}">
+              <a class="nav-link dropdown-toggle" href="#" id="authDropdown" role="button" 
+                 data-bs-toggle="dropdown" aria-expanded="false">
+                Tài khoản
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="authDropdown">
+                <li><a class="dropdown-item" href="/auth/login">Đăng nhập</a></li>
+                <li><a class="dropdown-item" href="/account/register">Đăng ký</a></li>
+              </ul>
+            </li>
+            <!-- Dropdown cho người dùng đã đăng nhập -->
+            <li class="nav-item dropdown" th:if="${session.currentUser != null}">
+              <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" 
+                 data-bs-toggle="dropdown" aria-expanded="false">
+                <span th:text="${session.currentUser.username}"></span>
+                <img th:src="${session.currentUser.avatar}" alt="Avatar" class="rounded-circle ms-2" 
+                     style="width:30px; height:30px;">
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" href="/account/update">Chỉnh sửa thông tin</a></li>
+				<li><a class="dropdown-item" href="/orders/history">Lịch sử đơn hàng</a></li>
+                <li><a class="dropdown-item" href="/account/logout">Đăng xuất</a></li>
+              </ul>
+            </li>
+            
+            <!-- Icon Giỏ hàng -->
+            <span class="text-primary" th:text="${cart.amount} + ' đ'">0 đ</span>
+            <li class="nav-item">
+            
+              <!-- Khi nhấn vào, mở offcanvas giỏ hàng -->
+              <a class="nav-link position-relative text-primary" data-bs-toggle="offcanvas" href="#offcanvasCart" 
+                 role="button" aria-controls="offcanvasCart">
+                <i class="bi bi-cart" style="font-size: 1.5rem;"></i>
+                <!-- Hiển thị số lượng sản phẩm trong giỏ (badge) -->
+                <span class="position-absolute top-10 start-100 translate-middle badge rounded-pill bg-danger" 
+                      th:text="${cart.getCount()}">0</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+  
+  
+<!-- OFFCANVAS GIỎ HÀNG -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCart" aria-labelledby="offcanvasCartLabel">
+  <!-- Offcanvas Header với tiêu đề và nút đóng -->
+  <div class="offcanvas-header">
+    <h5 id="offcanvasCartLabel">Giỏ hàng</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+
+  <!-- Gạch phân cách giữa header và body -->
+  <hr class="m-0">
+
+  <!-- Offcanvas Body -->
+  <div class="offcanvas-body">
+    <!-- Nếu giỏ hàng rỗng -->
+    <div th:if="${#lists.isEmpty(cart.items)}">
+      <p>Không có sản phẩm trong giỏ hàng.</p>
+    </div>
+    <!-- Nếu giỏ hàng có sản phẩm -->
+    <div th:if="${!#lists.isEmpty(cart.items)}">
+      <ul class="list-group">
+        <li class="list-group-item" th:each="item : ${cart.items}">
+          <div class="d-flex justify-content-between align-items-center">
+            <!-- Hình ảnh và thông tin sản phẩm -->
+            <div class="d-flex align-items-center">
+              <!-- Image: Giới hạn kích thước để không làm vỡ khung -->
+<!--			  <img th:src="@{/images/{image}(image=${item.image})}" 
+			       alt="Product Image" 
+			       class="img-fluid border rounded" 
+			       style="width:30%; max-width:80px;">-->
+				<img th:src="@{${item.image}}" 	
+				        alt="Product Image" 
+				        class="img-fluid border rounded" 
+				        style="width:30%; max-width:80px;">
+   
+              <div class="ms-3">
+                <strong th:text="${item.name}">Tên sản phẩm</strong>
+                <p class="mb-0">Số lượng: <span th:text="${item.qty}">0</span></p>
+                <p class="mb-0">Giá: <span th:text="${item.price}">0</span> đ</p>
+              </div>
+            </div>
+            <!-- Nút x (xoá sản phẩm) -->
+            <a th:href="@{/cart/remove/{id}(id=${item.id})}" class="btn btn-danger btn-sm">x</a>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Offcanvas Footer -->
+  <div class="offcanvas-footer p-3 border-top">
+    <!-- Tổng số phụ của tất cả sản phẩm -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span><strong>Tổng số phụ:</strong></span>
+      <span th:text="${cart.amount} + ' đ'">0 đ</span>
+    </div>
+    <!-- Nút xem giỏ hàng -->
+    <a href="/cart/view" class="btn btn-primary w-100">Xem giỏ hàng</a>
+  </div>
+</div>
+
+  
+	<main layout:fragment="content" class="container mt-5 vh-100">
+		<!-- Nội dung con sẽ được chèn tại đây -->
+	</main>
+<footer class="container-fluid text-center p-3 bg-dark text-white mt-4">
+    <p>&copy; 2025 Shop Linh Kiện TPQ. All Rights Reserved.</p>
+</footer>
+</body>
+</html>
